@@ -8,6 +8,7 @@
 
 import UIKit
 import AFNetworking
+import MBProgressHUD
 
 class MoviesViewController: UIViewController,UITableViewDataSource, UITableViewDelegate {
 
@@ -70,13 +71,19 @@ class MoviesViewController: UIViewController,UITableViewDataSource, UITableViewD
         let request = NSURLRequest(url: url! as URL)
         let session = URLSession(configuration: URLSessionConfiguration.default, delegate:nil, delegateQueue:OperationQueue.main)
         
+        // Display HUD right before the request is made
+        MBProgressHUD.showAdded(to: self.view, animated: true)
+        
+        
         let task : URLSessionDataTask = session.dataTask(with: request as URLRequest, completionHandler: { (data, response, error) in
                 if let data = data {
                     if let responseDictionary = try! JSONSerialization.jsonObject(
                         with: data, options:[]) as? NSDictionary {
                         
+                        
                         self.movies = responseDictionary.object(forKey: "results") as? [NSDictionary]
-                        self.tableView.reloadData() 
+                        self.tableView.reloadData()
+                        MBProgressHUD.hide(for: self.view, animated: true)
                 }
             }
         });
@@ -87,7 +94,7 @@ class MoviesViewController: UIViewController,UITableViewDataSource, UITableViewD
     func getPosterURL(index: Int) ->NSURL{
         let movie = movies?[index]
         let baseURL = "https://image.tmdb.org/t/p/"
-        let size = "w342" //High resolution: "original", medium resolution: "w342", low resolution: "w45"
+        let size = "original" //High resolution: "original", medium resolution: "w342", low resolution: "w45"
         let filePath = movie?["poster_path"] as! String
         let imageURL = NSURL(string: baseURL+size+filePath)
         return imageURL!
