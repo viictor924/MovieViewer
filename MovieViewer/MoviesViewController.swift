@@ -48,23 +48,24 @@ class MoviesViewController: UIViewController,UITableViewDataSource, UITableViewD
         
         let movie = movies?[indexPath.row]
         let title = movie?["title"] as! String
-        let overview = movie?["overview"] as! String
+        let overview = getMovieDetail(index: indexPath.row, detail: "overview")
         let imageURL = getPosterURL(index: indexPath.row)
         
         
         cell.titleLabel.text = title
+        cell.titleLabel.sizeToFit()
         cell.overviewLabel.text = overview
+        
+        cell.overviewLabel.sizeToFit()
+        
         cell.posterView.setImageWith(imageURL as URL)//get image from URL
-        
-        
-        print("cell.textLabel.text == \(cell.textLabel?.text)")
         return cell
     }
 
     
     func requestMovie(){
         let apiKey = "a07e22bc18f5cb106bfe4cc1f83ad8ed"
-        print("apiKey == \(apiKey)")
+      
         let url = NSURL(string: "https://api.themoviedb.org/3/movie/now_playing?api_key=\(apiKey)")
         let request = NSURLRequest(url: url! as URL)
         let session = URLSession(configuration: URLSessionConfiguration.default, delegate:nil, delegateQueue:OperationQueue.main)
@@ -73,7 +74,7 @@ class MoviesViewController: UIViewController,UITableViewDataSource, UITableViewD
                 if let data = data {
                     if let responseDictionary = try! JSONSerialization.jsonObject(
                         with: data, options:[]) as? NSDictionary {
-                            print("response == \(responseDictionary)")
+                        
                         self.movies = responseDictionary.object(forKey: "results") as? [NSDictionary]
                         self.tableView.reloadData() 
                 }
@@ -92,19 +93,27 @@ class MoviesViewController: UIViewController,UITableViewDataSource, UITableViewD
         return imageURL!
     }
     
+    func getMovieDetail(index: Int, detail: String) -> String{
+        let movie = movies?[index]
+        let extractedDetail = movie?[detail] as! String
+        return extractedDetail
+    }
+    
     // MARK: - Navigation
 
     // In a storyboard-based application, you will often want to do a little preparation before navigation
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         // Get the new view controller using segue.destinationViewController.
         let vc = segue.destination as! movieDetailsViewController
-        let cell = sender as! UITableViewCell
+        
         let indexPath = self.tableView.indexPathForSelectedRow
-
+        let selectedMovieIndex = indexPath?.row
+        
         // Pass the selected object to the new view controller.
-        
-        
-        vc.posterURL = getPosterURL(index: (indexPath?.row)!)
+        vc.movieOverview = getMovieDetail(index: selectedMovieIndex!, detail: "overview")
+        vc.movieTitle = getMovieDetail(index: selectedMovieIndex!, detail: "original_title")
+        vc.releaseDate = getMovieDetail(index: selectedMovieIndex!, detail: "release_date")
+        vc.posterURL = getPosterURL(index: selectedMovieIndex!)
     }
     
 
