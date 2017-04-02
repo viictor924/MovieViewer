@@ -35,6 +35,9 @@ class MoviesViewController: UIViewController,UITableViewDataSource, UITableViewD
         
         //download movies from movie database API
         requestMovie()
+   
+        //Customize the Navigation Bar
+        customizeNavigationBar()
 
         
     }
@@ -142,6 +145,23 @@ class MoviesViewController: UIViewController,UITableViewDataSource, UITableViewD
         let movie = movies?[index]
         let extractedDetail = movie?[detail] as! String
         return extractedDetail
+    }
+    
+    func customizeNavigationBar(){
+        
+        self.navigationItem.title = "Movies"
+        if let navigationBar = navigationController?.navigationBar {
+            
+            navigationBar.tintColor = UIColor(red: 1.0, green: 0.5, blue: 0, alpha: 1)
+            navigationBar.backgroundColor = UIColor(red: 1.0, green: 0.5    , blue: 0, alpha: 0.75)
+            
+            navigationBar.titleTextAttributes = [
+                NSFontAttributeName : UIFont.boldSystemFont(ofSize: 22),
+                NSForegroundColorAttributeName : UIColor(red: 1.0, green: 0.5, blue: 0, alpha: 0.75),
+                
+            ]
+        }
+        
     }
     
     // MARK: - Navigation
