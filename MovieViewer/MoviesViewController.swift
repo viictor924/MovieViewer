@@ -92,13 +92,15 @@ class MoviesViewController: UIViewController,UITableViewDataSource, UITableViewD
         spinningActivity.label.text = "Loading movies"
         
         let apiKey = "a07e22bc18f5cb106bfe4cc1f83ad8ed"
-        //print(endpoint)
-        endpoint = "now_playing"
+        print("endpoint == \(endpoint)")
+        
         let URLString = "https://api.themoviedb.org/3/movie/\(endpoint!)?api_key=\(apiKey)"
         print("URLString == \(URLString)")
-        let url = NSURL(string: URLString)
-       // print("url == \(url)")
-        let request = NSURLRequest(url: url! as URL)
+        
+        let url = NSURL(string: URLString)!
+        print("url == \(url)")
+        
+        let request = NSURLRequest(url: url as URL)
         let session = URLSession(configuration: URLSessionConfiguration.default, delegate:nil, delegateQueue:OperationQueue.main)
         
         
