@@ -12,9 +12,12 @@ import MBProgressHUD
 
 class MoviesViewController: UIViewController,UITableViewDataSource, UITableViewDelegate {
 
+    @IBOutlet weak var networkErrorView: UIView!
     @IBOutlet weak var tableView: UITableView!
     
     var movies:[NSDictionary]?
+    var refreshControl: UIRefreshControl?
+    var endpoint: String!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -23,9 +26,17 @@ class MoviesViewController: UIViewController,UITableViewDataSource, UITableViewD
         tableView.dataSource = self
         tableView.delegate = self
         
+        // Initialize a UIRefreshControl
+        let refreshControl = UIRefreshControl()
+        refreshControl.addTarget(self, action: #selector(MoviesViewController.refresh), for: UIControlEvents.valueChanged)
+        self.refreshControl = refreshControl
+        // add refresh control to table view
+        tableView.insertSubview(refreshControl, at: 0)
+        
+        //download movies from movie database API
         requestMovie()
 
-        // Do any additional setup after loading the view.
+        
     }
 
     override func didReceiveMemoryWarning() {
@@ -42,21 +53,21 @@ class MoviesViewController: UIViewController,UITableViewDataSource, UITableViewD
 
     }
     
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath){
+        tableView.deselectRow(at: indexPath, animated:false)
+    }
+
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell{
         let cell = tableView.dequeueReusableCell(withIdentifier: "MovieCell", for: indexPath) as! MovieCell
-        
-        
         
         let movie = movies?[indexPath.row]
         let title = movie?["title"] as! String
         let overview = getMovieDetail(index: indexPath.row, detail: "overview")
         let imageURL = getPosterURL(index: indexPath.row)
         
-        
         cell.titleLabel.text = title
         cell.titleLabel.sizeToFit()
         cell.overviewLabel.text = overview
-        
         cell.overviewLabel.sizeToFit()
         
         cell.posterView.setImageWith(imageURL as URL)//get image from URL
@@ -64,29 +75,53 @@ class MoviesViewController: UIViewController,UITableViewDataSource, UITableViewD
     }
 
     
+    
+    // Makes a network request to get updated data
+    // Updates the tableView with the new data
+    // Hides the RefreshControl
+    func refresh(sender:AnyObject)
+    {
+        requestMovie()
+        print("end refreshing")
+        self.refreshControl?.endRefreshing()
+    }
+    
     func requestMovie(){
+        // Display HUD right before the request is made
+        let spinningActivity = MBProgressHUD.showAdded(to: self.view, animated: true)
+        spinningActivity.label.text = "Loading movies"
+        
         let apiKey = "a07e22bc18f5cb106bfe4cc1f83ad8ed"
-      
-        let url = NSURL(string: "https://api.themoviedb.org/3/movie/now_playing?api_key=\(apiKey)")
+        //print(endpoint)
+        endpoint = "now_playing"
+        let URLString = "https://api.themoviedb.org/3/movie/\(endpoint!)?api_key=\(apiKey)"
+        print("URLString == \(URLString)")
+        let url = NSURL(string: URLString)
+       // print("url == \(url)")
         let request = NSURLRequest(url: url! as URL)
         let session = URLSession(configuration: URLSessionConfiguration.default, delegate:nil, delegateQueue:OperationQueue.main)
         
-        // Display HUD right before the request is made
-        MBProgressHUD.showAdded(to: self.view, animated: true)
-        
         
         let task : URLSessionDataTask = session.dataTask(with: request as URLRequest, completionHandler: { (data, response, error) in
+            
                 if let data = data {
                     if let responseDictionary = try! JSONSerialization.jsonObject(
                         with: data, options:[]) as? NSDictionary {
-                        
+                        self.networkErrorView.isHidden = true
                         
                         self.movies = responseDictionary.object(forKey: "results") as? [NSDictionary]
                         self.tableView.reloadData()
-                        MBProgressHUD.hide(for: self.view, animated: true)
+                        spinningActivity.hide(animated: true)
+                       
                 }
+                } else{
+                    self.networkErrorView.isHidden = false
+                    if let e = error{
+                        print("Error: \(e)")
+                    }
             }
-        });
+
+            });
         task.resume()
     }
     
@@ -95,6 +130,7 @@ class MoviesViewController: UIViewController,UITableViewDataSource, UITableViewD
         let movie = movies?[index]
         let baseURL = "https://image.tmdb.org/t/p/"
         let size = "original" //High resolution: "original", medium resolution: "w342", low resolution: "w45"
+        
         let filePath = movie?["poster_path"] as! String
         let imageURL = NSURL(string: baseURL+size+filePath)
         return imageURL!

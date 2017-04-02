@@ -11,6 +11,8 @@ import UIKit
 class movieDetailsViewController: UIViewController {
 
     @IBOutlet weak var posterImageView: UIImageView!
+    
+    @IBOutlet weak var posterView: UIView!
     @IBOutlet weak var overviewScrollView: UIScrollView!
     
     @IBOutlet weak var titleLabel: UILabel!
@@ -27,8 +29,9 @@ class movieDetailsViewController: UIViewController {
     
         
         self.posterImageView.setImageWith(posterURL as! URL)
-        let contentWidth = overviewScrollView.bounds.width
-        let contentHeight = overviewScrollView.bounds.height*1.25
+        let contentWidth = overviewScrollView.frame.size.width
+        let contentHeight = posterView.frame.origin.y+posterView.frame.size.height
+        //let contentHeight = overviewScrollView.bounds.height*1.25
         overviewScrollView.contentSize =  CGSize(width: contentWidth, height:contentHeight)
         overviewLabel.text = movieOverview
         overviewLabel.sizeToFit()
