@@ -73,6 +73,9 @@ class MoviesViewController: UIViewController,UITableViewDataSource, UITableViewD
         cell.overviewLabel.text = overview
         cell.overviewLabel.sizeToFit()
         
+        // No color when the user selects cell
+        cell.selectionStyle = .none
+        
         cell.posterView.setImageWith(imageURL as URL)//get image from URL
         return cell
     }
@@ -160,6 +163,13 @@ class MoviesViewController: UIViewController,UITableViewDataSource, UITableViewD
                 NSForegroundColorAttributeName : UIColor(red: 1.0, green: 0.5, blue: 0, alpha: 0.75),
                 
             ]
+           // let backImg: UIImage? = UIImage(named: endpoint)
+            
+         //   let dummyButton = UIBarButtonItem(title: "Dummy", style: .plain, target: nil, action: nil)
+         //  dummyButton.setBackButtonBackgroundImage(UIImage(named: endpoint), for: UIControlState.normal, barMetrics: UIBarMetrics.default)
+           // navigationItem.leftBarButtonItem = dummyButton
+          //  self.navigationItem.backBarButtonItem = dummyButton
+         //   self.navigationItem.backBarButtonItem?.image = UIImage(named: "top_rated")
         }
         
     }
