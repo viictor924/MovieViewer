@@ -66,7 +66,7 @@ class MoviesViewController: UIViewController,UITableViewDataSource, UITableViewD
         let movie = movies?[indexPath.row]
         let title = movie?["title"] as! String
         let overview = getMovieDetail(index: indexPath.row, detail: "overview")
-        let imageURL = getPosterURL(index: indexPath.row)
+        let imageURL = getLargePosterURL(index: indexPath.row)
         
         cell.titleLabel.text = title
         cell.titleLabel.sizeToFit()
@@ -134,7 +134,17 @@ class MoviesViewController: UIViewController,UITableViewDataSource, UITableViewD
     }
     
     
-    func getPosterURL(index: Int) ->NSURL{
+    func getSmallPosterURL(index: Int) ->NSURL{
+        let movie = movies?[index]
+        let baseURL = "https://image.tmdb.org/t/p/"
+        let size = "w45" //High resolution: "original", medium resolution: "w342", low resolution: "w45"
+        
+        let filePath = movie?["poster_path"] as! String
+        let imageURL = NSURL(string: baseURL+size+filePath)
+        return imageURL!
+    }
+    
+    func getLargePosterURL(index: Int) ->NSURL{
         let movie = movies?[index]
         let baseURL = "https://image.tmdb.org/t/p/"
         let size = "original" //High resolution: "original", medium resolution: "w342", low resolution: "w45"
@@ -188,7 +198,10 @@ class MoviesViewController: UIViewController,UITableViewDataSource, UITableViewD
         vc.movieOverview = getMovieDetail(index: selectedMovieIndex!, detail: "overview")
         vc.movieTitle = getMovieDetail(index: selectedMovieIndex!, detail: "original_title")
         vc.releaseDate = getMovieDetail(index: selectedMovieIndex!, detail: "release_date")
-        vc.posterURL = getPosterURL(index: selectedMovieIndex!)
+        
+        vc.smallPosterURL = getSmallPosterURL(index: selectedMovieIndex!)
+        
+        vc.largePosterURL = getLargePosterURL(index: selectedMovieIndex!)
     }
     
 
